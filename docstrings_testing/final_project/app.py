@@ -33,7 +33,7 @@ def db_check():
     try:
         check_database_connection()
         check_table_exists("favorites")
-        check_table_exists("users")  # Ensure users table exists
+        check_table_exists("users")  # Ensure users table exists
         return make_response(jsonify({'database_status': 'healthy'}), 200)
     except Exception as e:
         app.logger.error(f"Database error: {e}")
