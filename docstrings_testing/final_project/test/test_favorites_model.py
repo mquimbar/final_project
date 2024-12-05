@@ -1,9 +1,9 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from favorites_model import add_favorite_city, get_favorite_cities, delete_favorite_city
+from models.favorites_model import add_favorite_city, get_favorite_cities, delete_favorite_city
 
 
-@patch("favorites_model.get_db_connection")
+@patch("models.favorites_model.get_db_connection")
 def test_add_favorite_city(mock_db_conn):
     mock_conn = MagicMock()
     mock_db_conn.return_value.__enter__.return_value = mock_conn
@@ -14,7 +14,7 @@ def test_add_favorite_city(mock_db_conn):
     mock_conn.commit.assert_called_once()
 
 
-@patch("favorites_model.get_db_connection")
+@patch("models.favorites_model.get_db_connection")
 def test_get_favorite_cities(mock_db_conn):
     mock_conn = MagicMock()
     mock_db_conn.return_value.__enter__.return_value = mock_conn
@@ -26,7 +26,7 @@ def test_get_favorite_cities(mock_db_conn):
     )
 
 
-@patch("favorites_model.get_db_connection")
+@patch("models.favorites_model.get_db_connection")
 def test_delete_favorite_city(mock_db_conn):
     mock_conn = MagicMock()
     mock_db_conn.return_value.__enter__.return_value = mock_conn
