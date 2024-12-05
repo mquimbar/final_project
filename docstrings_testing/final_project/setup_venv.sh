@@ -14,7 +14,7 @@ if [ ! -d "$VENV_DIR" ]; then
   # Install dependencies from requirements.lock if it exists
   if [ -f "$REQUIREMENTS_FILE" ]; then
     echo "Installing dependencies from $REQUIREMENTS_FILE..."
-    pip install --no-cache-dir -r "$REQUIREMENTS_FILE"
+    pip3 install --no-cache-dir -r "$REQUIREMENTS_FILE"
   else
     echo "Error: $REQUIREMENTS_FILE not found."
     exit 1
