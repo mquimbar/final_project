@@ -1,10 +1,12 @@
 from dotenv import load_dotenv
-from flask import Flask, jsonify, make_response, request
+from flask import Flask, jsonify, make_response, Response, request
 from models.weather_model import get_current_weather, get_weather_forecast
 from models.favorites_model import add_favorite_city, get_favorite_cities, delete_favorite_city
+from models.user_model import Users
 from utils.sql_utils import check_database_connection, check_table_exists
-from utils.auth_utils import create_user, login_user, update_user_password
 import logging
+from utils.db import db
+from config import ProductionConfig
 
 # Load environment variables from .env file
 load_dotenv()
@@ -14,6 +16,16 @@ app = Flask(__name__)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+
+def create_app(config_class=ProductionConfig):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+
+    db.init_app(app)  # Initialize db with app
+    with app.app_context():
+        db.create_all()  # Recreate all tables
+
+    #battle_model = BattleModel()
 
 
 ####################################################
@@ -56,7 +68,7 @@ def create_account():
         if not username or not password:
             return make_response(jsonify({'error': 'Username and password are required'}), 400)
 
-        create_user(username, password)
+        Users.create_user(username, password)
         return make_response(jsonify({'message': 'User account created successfully'}), 201)
     except Exception as e:
         app.logger.error(f"Error creating account: {e}")
@@ -73,7 +85,7 @@ def login():
         if not username or not password:
             return make_response(jsonify({'error': 'Username and password are required'}), 400)
 
-        if login_user(username, password):
+        if Users.login_user(username, password):
             return make_response(jsonify({'message': 'Login successful'}), 200)
         else:
             return make_response(jsonify({'error': 'Invalid credentials'}), 401)
@@ -93,7 +105,7 @@ def update_password():
         if not username or not old_password or not new_password:
             return make_response(jsonify({'error': 'All fields are required'}), 400)
 
-        if update_user_password(username, old_password, new_password):
+        if Users.update_password(username, old_password, new_password):
             return make_response(jsonify({'message': 'Password updated successfully'}), 200)
         else:
             return make_response(jsonify({'error': 'Invalid credentials'}), 401)
