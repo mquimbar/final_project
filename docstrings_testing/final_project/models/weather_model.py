@@ -22,6 +22,7 @@ def fetch_weather_data(city: str, endpoint: str) -> dict:
     try:
         response = requests.get(url, params=params)
         response.raise_for_status()
+        logger.info("Weather data successfully fetched!")
         return response.json()
     except requests.RequestException as e:
         logger.error(f"Error fetching {endpoint} data for {city}: {e}")
@@ -31,10 +32,12 @@ def get_current_weather(city: str) -> dict:
     """
     Get current weather data for a city.
     """
+    logger.info("Got current weather!")
     return fetch_weather_data(city, "weather")
 
 def get_weather_forecast(city: str) -> dict:
     """
     Get weather forecast data for a city.
     """
+    logger.info("Got weather forecast!")
     return fetch_weather_data(city, "forecast")

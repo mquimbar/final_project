@@ -1,49 +1,7 @@
 import pytest
 
 from models.user_model import Users
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from models.user_model import Users
-#from clients.mongo_client import sessions_collection
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
-
-#def create_app(config_name="default"):
-#    app = Flask(__name__)
-#    app.config.from_object(config_by_name[config_name])
-#    db.init_app(app)  # Initialize the SQLAlchemy extension with the app
-#    return app
-
-from pymongo import MongoClient
-
-#@pytest.fixture(scope="module")
-#def session():
-#    """Fixture to provide a database session."""
-#    # Create an in-memory SQLite database for testing
-#    engine = create_engine("sqlite:///:memory:")
-#    Base.metadata.create_all(engine)  # Create tables from models
-
-    # Create a session factory and a session
-#    Session = sessionmaker(bind=engine)
-#    session = Session()
-
-    # Yield session to the test functions
-#    yield session
-
-    # Clean up after tests
-#    session.close()
-
-@pytest.fixture(scope="module")
-def session():
-    """Fixture for providing a MongoDB client or session."""
-    client = MongoClient("mongodb://localhost:27017")
-    db = client.test_database  # Use your actual database name
-    yield db  # Provide the database to the tests
-
-    client.close()
-
 
 @pytest.fixture
 def sample_user():

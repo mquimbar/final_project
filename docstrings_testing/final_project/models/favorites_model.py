@@ -13,6 +13,7 @@ def add_favorite_city(user: str, city: str) -> None:
             cursor = conn.cursor()
             cursor.execute("INSERT INTO favorites (user, city) VALUES (?, ?)", (user, city))
             conn.commit()
+            logger.info("added favorite city: %s", city)
     except Exception as e:
         logger.error(f"Error adding favorite city: {e}")
         raise e
@@ -25,6 +26,7 @@ def get_favorite_cities(user: str) -> List[str]:
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT city FROM favorites WHERE user = ?", (user,))
+            logger.info("got the list of favorite cities!")
             return [row[0] for row in cursor.fetchall()]
     except Exception as e:
         logger.error(f"Error retrieving favorite cities: {e}")
@@ -39,6 +41,7 @@ def delete_favorite_city(user: str, city: str) -> None:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM favorites WHERE user = ? AND city = ?", (user, city))
             conn.commit()
+            logger.info("deleted favorite city: %s", city)
     except Exception as e:
         logger.error(f"Error deleting favorite city: {e}")
         raise e

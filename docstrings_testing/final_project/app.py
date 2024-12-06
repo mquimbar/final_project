@@ -25,6 +25,7 @@ def create_app(config_class=ProductionConfig):
     with app.app_context():
         db.create_all()  # Recreate all tables
 
+    return app
     #battle_model = BattleModel()
 
 
