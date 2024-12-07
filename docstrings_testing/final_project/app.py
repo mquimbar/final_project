@@ -1,12 +1,14 @@
 from dotenv import load_dotenv
 from flask import Flask, jsonify, make_response, Response, request
-from models.weather_model import get_current_weather, get_weather_forecast
-from models.favorites_model import add_favorite_city, get_favorite_cities, delete_favorite_city
+from models.weather_model import WeatherModel
+from models.favorites_model import FavoritesModel
 from models.user_model import Users
 from utils.sql_utils import check_database_connection, check_table_exists
 import logging
-from utils.db import db
+from db import db
 from config import ProductionConfig
+from models.mongo_session_model import login_user, logout_user
+from werkzeug.exceptions import BadRequest, Unauthorized
 
 # Load environment variables from .env file
 load_dotenv()
@@ -26,7 +28,7 @@ def create_app(config_class=ProductionConfig):
         db.create_all()  # Recreate all tables
 
     return app
-    #battle_model = BattleModel()
+    #favorites_model = FavoritesModel()
 
 
 ####################################################
@@ -58,41 +60,164 @@ def db_check():
 ####################################################
 
 
-@app.route('/api/create-account', methods=['POST'])
-def create_account():
-    """Create a new user account."""
-    try:
-        data = request.get_json()
-        username = data.get('username')
-        password = data.get('password')
+@app.route('/api/create-user', methods=['POST'])
+def create_user() -> Response:
+        """
+        Route to create a new user.
 
-        if not username or not password:
-            return make_response(jsonify({'error': 'Username and password are required'}), 400)
+        Expected JSON Input:
+            - username (str): The username for the new user.
+            - password (str): The password for the new user.
 
-        Users.create_user(username, password)
-        return make_response(jsonify({'message': 'User account created successfully'}), 201)
-    except Exception as e:
-        app.logger.error(f"Error creating account: {e}")
-        return make_response(jsonify({'error': str(e)}), 500)
+        Returns:
+            JSON response indicating the success of user creation.
+        Raises:
+            400 error if input validation fails.
+            500 error if there is an issue adding the user to the database.
+        """
+        app.logger.info('Creating new user')
+        try:
+            # Get the JSON data from the request
+            data = request.get_json()
+
+            # Extract and validate required fields
+            username = data.get('username')
+            password = data.get('password')
+
+            if not username or not password:
+                return make_response(jsonify({'error': 'Invalid input, both username and password are required'}), 400)
+
+            # Call the User function to add the user to the database
+            app.logger.info('Adding user: %s', username)
+            Users.create_user(username, password)
+
+            app.logger.info("User added: %s", username)
+            return make_response(jsonify({'status': 'user added', 'username': username}), 201)
+        except Exception as e:
+            app.logger.error("Failed to add user: %s", str(e))
+            return make_response(jsonify({'error': str(e)}), 500)
+    
+@app.route('/api/delete-user', methods=['DELETE'])
+def delete_user() -> Response:
+        """
+        Route to delete a user.
+
+        Expected JSON Input:
+            - username (str): The username of the user to be deleted.
+
+        Returns:
+            JSON response indicating the success of user deletion.
+        Raises:
+            400 error if input validation fails.
+            500 error if there is an issue deleting the user from the database.
+        """
+        app.logger.info('Deleting user')
+        try:
+            # Get the JSON data from the request
+            data = request.get_json()
+
+            # Extract and validate required fields
+            username = data.get('username')
+
+            if not username:
+                return make_response(jsonify({'error': 'Invalid input, username is required'}), 400)
+
+            # Call the User function to delete the user from the database
+            app.logger.info('Deleting user: %s', username)
+            Users.delete_user(username)
+
+            app.logger.info("User deleted: %s", username)
+            return make_response(jsonify({'status': 'user deleted', 'username': username}), 200)
+        except Exception as e:
+            app.logger.error("Failed to delete user: %s", str(e))
+            return make_response(jsonify({'error': str(e)}), 500)
+
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    """Verify user credentials."""
-    try:
+        """
+        Route to log in a user and load their combatants.
+
+        Expected JSON Input:
+            - username (str): The username of the user.
+            - password (str): The user's password.
+
+        Returns:
+            JSON response indicating the success of the login.
+
+        Raises:
+            400 error if input validation fails.
+            401 error if authentication fails (invalid username or password).
+            500 error for any unexpected server-side issues.
+        """
         data = request.get_json()
-        username = data.get('username')
-        password = data.get('password')
+        if not data or 'username' not in data or 'password' not in data:
+            app.logger.error("Invalid request payload for login.")
+            raise BadRequest("Invalid request payload. 'username' and 'password' are required.")
 
-        if not username or not password:
-            return make_response(jsonify({'error': 'Username and password are required'}), 400)
+        username = data['username']
+        password = data['password']
 
-        if Users.login_user(username, password):
-            return make_response(jsonify({'message': 'Login successful'}), 200)
-        else:
-            return make_response(jsonify({'error': 'Invalid credentials'}), 401)
-    except Exception as e:
-        app.logger.error(f"Error logging in: {e}")
-        return make_response(jsonify({'error': str(e)}), 500)
+        try:
+            # Validate user credentials
+            if not Users.check_password(username, password):
+                app.logger.warning("Login failed for username: %s", username)
+                raise Unauthorized("Invalid username or password.")
+
+            # Get user ID
+            user_id = Users.get_id_by_username(username)
+
+            # Load user's combatants into the battle model
+            login_user(user_id, FavoritesModel)
+
+            app.logger.info("User %s logged in successfully.", username)
+            return jsonify({"message": f"User {username} logged in successfully."}), 200
+
+        except Unauthorized as e:
+            return jsonify({"error": str(e)}), 401
+        except Exception as e:
+            app.logger.error("Error during login for username %s: %s", username, str(e))
+            return jsonify({"error": "An unexpected error occurred."}), 500
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+        """
+        Route to log out a user and save their combatants to MongoDB.
+
+        Expected JSON Input:
+            - username (str): The username of the user.
+
+        Returns:
+            JSON response indicating the success of the logout.
+
+        Raises:
+            400 error if input validation fails or user is not found in MongoDB.
+            500 error for any unexpected server-side issues.
+        """
+        data = request.get_json()
+        if not data or 'username' not in data:
+            app.logger.error("Invalid request payload for logout.")
+            raise BadRequest("Invalid request payload. 'username' is required.")
+
+        username = data['username']
+
+        try:
+            # Get user ID
+            user_id = Users.get_id_by_username(username)
+
+            # Save user's combatants and clear the battle model
+            logout_user(user_id, FavoritesModel)
+
+            app.logger.info("User %s logged out successfully.", username)
+            return jsonify({"message": f"User {username} logged out successfully."}), 200
+
+        except ValueError as e:
+            app.logger.warning("Logout failed for username %s: %s", username, str(e))
+            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            app.logger.error("Error during logout for username %s: %s", username, str(e))
+            return jsonify({"error": "An unexpected error occurred."}), 500
+
 
 @app.route('/api/update-password', methods=['POST'])
 def update_password():
@@ -131,7 +256,7 @@ def add_favorite():
         if not user or not city:
             return make_response(jsonify({'error': 'Both user and city are required'}), 400)
 
-        add_favorite_city(user, city)
+        FavoritesModel.add_favorite_city(user, city)
         return make_response(jsonify({'message': f'{city} added to favorites for user {user}'}), 201)
     except Exception as e:
         app.logger.error(f"Error adding favorite: {e}")
@@ -141,7 +266,7 @@ def add_favorite():
 def get_favorites(user):
     """Retrieve all favorite cities for a user."""
     try:
-        favorites = get_favorite_cities(user)
+        favorites = FavoritesModel.get_favorite_cities(user)
         return make_response(jsonify({'user': user, 'favorites': favorites}), 200)
     except Exception as e:
         app.logger.error(f"Error retrieving favorites: {e}")
@@ -158,7 +283,7 @@ def delete_favorite():
         if not user or not city:
             return make_response(jsonify({'error': 'Both user and city are required'}), 400)
 
-        delete_favorite_city(user, city)
+        FavoritesModel.delete_favorite_city(user, city)
         return make_response(jsonify({'message': f'{city} removed from favorites for user {user}'}), 200)
     except Exception as e:
         app.logger.error(f"Error deleting favorite: {e}")
@@ -174,7 +299,7 @@ def delete_favorite():
 def get_weather(city):
     """Retrieve current weather data for a city."""
     try:
-        weather = get_current_weather(city)
+        weather = WeatherModel.get_current_weather(city)
         return make_response(jsonify(weather), 200)
     except Exception as e:
         app.logger.error(f"Error fetching weather: {e}")
@@ -184,11 +309,11 @@ def get_weather(city):
 def get_forecast(city):
     """Retrieve weather forecast data for a city."""
     try:
-        forecast = get_weather_forecast(city)
+        forecast = WeatherModel.get_weather_forecast(city)
         return make_response(jsonify(forecast), 200)
     except Exception as e:
         app.logger.error(f"Error fetching forecast: {e}")
         return make_response(jsonify({'error': str(e)}), 500)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)

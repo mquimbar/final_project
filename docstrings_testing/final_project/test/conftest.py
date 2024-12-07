@@ -1,8 +1,8 @@
 import pytest
 
-from app import create_app
+from docstrings_testing.final_project.app_orig import create_app
 from config import TestConfig
-from utils.db import db
+from db import db
 
 @pytest.fixture(scope="function")
 def app():
