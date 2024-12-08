@@ -3,7 +3,7 @@ import os
 
 import redis
 
-from utils.logger import configure_logger
+from final_project.utils.logger import configure_logger
 
 
 logger = logging.getLogger(__name__)

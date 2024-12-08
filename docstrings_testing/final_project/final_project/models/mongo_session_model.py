@@ -1,8 +1,8 @@
 import logging
 from typing import Any, List
 
-from clients.mongo_client import sessions_collection
-from utils.logger import configure_logger
+from final_project.clients.mongo_client import sessions_collection
+from final_project.utils.logger import configure_logger
 
 
 logger = logging.getLogger(__name__)
@@ -30,13 +30,13 @@ def login_user(user_id: int, favorites_model) -> None:
 
     if session:
         logger.info("Session found for user ID %d. Loading cities.", user_id)
-        favorites_model.clear_favorites()
+        #favorites_model.clear_favorites() # *******
         for city in session.get("cities", []):
-            logger.debug("Clearing favorites: %s", city)
-            favorites_model.delete_favorite_city(city)
+            logger.debug("Addding favorite: %s", city)
+            favorites_model.add_favorite_city(city)
         logger.info("Favorites successfully loaded for user ID %d.", user_id)
     else:
-        logger.info("No session found for user ID %d. Creating a new session with empty combatants list.", user_id)
+        logger.info("No session found for user ID %d. Creating a new session with empty favorites list.", user_id)
         sessions_collection.insert_one({"user_id": user_id, "favorites": []})
         logger.info("New session created for user ID %d.", user_id)
 
@@ -60,7 +60,7 @@ def logout_user(user_id: int, favorites_model) -> None:
         ValueError: If no session document is found for the user in MongoDB.
     """
     logger.info("Attempting to log out user with ID %d.", user_id)
-    city_data = favorites_model.get_favorate_cities()
+    city_data = favorites_model.get_favorite_cities()
     logger.debug("Current combatants for user ID %d: %s", user_id)
 
     result = sessions_collection.update_one(
@@ -73,6 +73,6 @@ def logout_user(user_id: int, favorites_model) -> None:
         logger.error("No session found for user ID %d. Logout failed.", user_id)
         raise ValueError(f"User with ID {user_id} not found for logout.")
 
-    logger.info("Combatants successfully saved for user ID %d. Clearing BattleModel combatants.", user_id)
+    logger.info("Cities successfully saved for user ID %d. Clearing FavoritesModel cities.", user_id)
     favorites_model.delete_favorite_city()
-    logger.info("BattleModel combatants cleared for user ID %d.", user_id)
+    logger.info("FavoritesModel cities cleared for user ID %d.", user_id)

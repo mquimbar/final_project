@@ -1,7 +1,6 @@
 import pytest
 
-from models.user_model import Users
-from models.user_model import Users
+from final_project.models.user_model import Users
 
 @pytest.fixture
 def sample_user():

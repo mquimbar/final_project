@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from models.favorites_model import FavoritesModel
+from final_project.models.favorites_model import FavoritesModel
 
 
 @pytest.fixture

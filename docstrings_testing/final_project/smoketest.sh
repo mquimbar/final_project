@@ -25,7 +25,7 @@ done
 check_health() {
   echo "Checking health status..."
   curl -s -X GET "$BASE_URL/health" | grep -q '"status": "healthy"'
-  echo "$(curl -s -X GET "$BASE_URL/health")"
+  #echo "$(curl -s -X GET "$BASE_URL/health")"
   if [ $? -eq 0 ]; then
     echo "Service is healthy."
   else
@@ -45,7 +45,8 @@ create_user() {
   echo "Creating a new user..."
   curl -s -X POST "$BASE_URL/create-user" -H "Content-Type: application/json" \
     -d '{"username":"testuser", "password":"password123"}' | grep -q '"status": "user added"'
-  echo "$(curl -s -X POST "$BASE_URL/create-user")"
+  #echo "$(curl -s -X POST "$BASE_URL/create-user" -H "Content-Type: application/json" \
+   # -d '{"username":"testuser", "password":"password123"}')"
   if [ $? -eq 0 ]; then
     echo "User created successfully."
   else
@@ -59,8 +60,8 @@ login_user() {
   echo "Logging in user..."
   response=$(curl -s -X POST "$BASE_URL/login" -H "Content-Type: application/json" \
     -d '{"username":"testuser", "password":"password123"}')
-  echo "$(curl -s -X POST "$BASE_URL/login")"
-  if echo "$response" | grep -q '"message": "User testuser logged in successfully"'; then
+  #echo "$response"
+  if echo "$response" | grep -q '"message": "User testuser logged in successfully."'; then
     echo "User logged in successfully."
     if [ "$ECHO_JSON" = true ]; then
       echo "Login Response JSON:"
@@ -76,6 +77,26 @@ login_user() {
   fi
 }
 
+# Function to log out a user
+logout_user() {
+  echo "Logging out user..."
+  response=$(curl -s -X POST "$BASE_URL/logout" -H "Content-Type: application/json" \
+    -d '{"username":"testuser"}')
+  if echo "$response" | grep -q '"message": "User testuser logged out successfully."'; then
+    echo "User logged out successfully."
+    if [ "$ECHO_JSON" = true ]; then
+      echo "Logout Response JSON:"
+      echo "$response" | jq .
+    fi
+  else
+    echo "Failed to log out user."
+    if [ "$ECHO_JSON" = true ]; then
+      echo "Error Response JSON:"
+      echo "$response" | jq .
+    fi
+    exit 1
+  fi
+}
 
 ##############################################
 #

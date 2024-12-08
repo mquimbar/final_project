@@ -1,6 +1,14 @@
 import requests
 import logging
 import os
+from final_project.db import db
+from final_project.utils.logger import configure_logger
+from final_project.clients.redis_client import redis_client
+from sqlalchemy import event
+from sqlalchemy.exc import IntegrityError
+from dataclasses import asdict, dataclass
+from typing import Any, List
+
 
 logger = logging.getLogger(__name__)
 API_KEY = os.getenv("WEATHER_API_KEY", "")
@@ -29,10 +37,20 @@ def fetch_weather_data(city: str, endpoint: str) -> dict:
             raise RuntimeError(f"Error fetching {endpoint} data for {city}")
 
 class WeatherModel:
+    # __tablename__ = 'weather'
 
-    def __init__(self):
-        """Initializes the BattleManager with an empty list of combatants and TTL."""
-        self.city: str  # List of active combatants
+    # id: int = db.Column(db.Integer, primary_key=True)
+    # meal: str = db.Column(db.String(80), unique=True, nullable=False)
+    # cuisine: str = db.Column(db.String(50))
+    # price: float = db.Column(db.Float, nullable=False)
+    # difficulty: str = db.Column(db.String(10), nullable=False)
+    # battles: int = db.Column(db.Integer, default=0)
+    # wins: int = db.Column(db.Integer, default=0)
+    # deleted: bool = db.Column(db.Boolean, default=False)
+
+    # def __init__(self):
+    #     """Initializes the BattleManager with an empty list of combatants and TTL."""
+    #     self.city: str  # List of active combatants
 
     def get_current_weather(city: str) -> dict:
         """

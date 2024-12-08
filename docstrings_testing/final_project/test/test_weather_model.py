@@ -1,7 +1,7 @@
 import pytest
 import requests
 from unittest.mock import patch, MagicMock
-from models.weather_model import WeatherModel
+from final_project.models.weather_model import WeatherModel
 
 
 @patch("models.weather_model.requests.get")
