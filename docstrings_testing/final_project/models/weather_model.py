@@ -47,3 +47,17 @@ class WeatherModel:
         """
         logger.info("Got weather forecast!")
         return fetch_weather_data(city, "forecast")
+    
+    def get_current_visibility(city: str) -> dict:
+        """
+        Get current weather data for a city.
+        """
+        logger.info("Got current visibility!")
+        return fetch_weather_data(city, "visibility")
+    
+    def get_current_rain(city: str) -> dict:
+        """
+        Get current weather data for a city.
+        """
+        logger.info("Got current rain!")
+        return fetch_weather_data(city, "rain")
