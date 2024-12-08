@@ -245,14 +245,15 @@ def create_app(config_class=ProductionConfig):
             """
         try:
             data = request.get_json()
-            user = data.get('user')
+            #user = data.get('user')
             city = data.get('city')
+            #print(data, user, city)
 
-            if not user or not city:
-                return make_response(jsonify({'error': 'Both user and city are required'}), 400)
+            if not city:
+                return make_response(jsonify({'error': 'City is required'}), 400)
 
-            favorites_model.add_favorite_city(user, city)
-            return make_response(jsonify({'message': f'{city} added to favorites for user {user}'}), 201)
+            favorites_model.add_favorite_city(city)
+            return make_response(jsonify({'message': f'{city} added to favorites'}), 201)
         except Exception as e:
             app.logger.error(f"Error adding favorite: {e}")
             return make_response(jsonify({'error': str(e)}), 500)

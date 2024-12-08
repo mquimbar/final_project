@@ -45,8 +45,8 @@ create_user() {
   echo "Creating a new user..."
   curl -s -X POST "$BASE_URL/create-user" -H "Content-Type: application/json" \
     -d '{"username":"testuser", "password":"password123"}' | grep -q '"status": "user added"'
-  #echo "$(curl -s -X POST "$BASE_URL/create-user" -H "Content-Type: application/json" \
-   # -d '{"username":"testuser", "password":"password123"}')"
+  echo "$(curl -s -X POST "$BASE_URL/create-user" -H "Content-Type: application/json" \
+    -d '{"username":"testuser", "password":"password123"}')"
   if [ $? -eq 0 ]; then
     echo "User created successfully."
   else
@@ -108,9 +108,9 @@ logout_user() {
 add_favorite_city() {
   echo "Adding a favorite city..."
   response=$(curl -s -X POST "$BASE_URL/add-favorite" -H "Content-Type: application/json" \
-    -d '{"user":"testuser", "city":"New York"}')
+    -d '{"city":"NewYork"}')
   echo "$response"
-  if echo "$response" | grep -q '"message": "New York added to favorites'; then
+  if echo "$response" | grep -q '"message": "NewYork added to favorites'; then
     echo "Favorite city added successfully."
   else
     echo "Failed to add favorite city."

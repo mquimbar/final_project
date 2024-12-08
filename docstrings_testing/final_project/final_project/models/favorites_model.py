@@ -19,6 +19,7 @@ class FavoritesModel(db.Model):
 
     id: int = db.Column(db.Integer, primary_key=True)
     city: str = db.Column(db.String(80), unique=True, nullable=False)
+    #user: str = db.Column(db.String(80), unique=True, nullable=False)
     #maybe need user????
 
     # def __init__(self):
