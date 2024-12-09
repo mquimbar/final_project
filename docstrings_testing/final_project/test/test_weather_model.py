@@ -55,3 +55,10 @@ def test_get_current_clouds(mock_fetch_weather_data):
     data = WeatherModel.get_current_clouds("Boston")
     assert data == {"clouds": 75}
     mock_fetch_weather_data.assert_called_once_with("Boston", "clouds")
+
+@patch("models.weather_model.fetch_weather_data")
+def test_get_current_clouds(mock_fetch_weather_data):
+    mock_fetch_weather_data.return_value = {"wind": 25}
+    data = WeatherModel.get_current_clouds("Boston")
+    assert data == {"wind": 25}
+    mock_fetch_weather_data.assert_called_once_with("Boston", "wind")

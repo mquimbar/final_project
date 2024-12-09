@@ -210,6 +210,18 @@ get_current_clouds() {
     exit 1
   fi
 }
+
+get_current_wind() {
+  echo "Getting current wind for New York..."
+  response=$(curl -s -X GET "$BASE_URL/wind/New York")
+  if echo "$response" | grep -q '"wind"'; then
+    echo "Wind data retrieved successfully."
+  else
+    echo "Failed to retrieve wind data."
+    exit 1
+  fi
+}
+
 ##############################################
 #
 # Run All Tests
