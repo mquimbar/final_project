@@ -40,3 +40,18 @@ def test_get_weather_forecast(mock_fetch_weather_data):
     data = WeatherModel.get_weather_forecast("Boston")
     assert data == {"forecast": "Rainy"}
     mock_fetch_weather_data.assert_called_once_with("Boston", "forecast")
+
+@patch("models.weather_model.fetch_weather_data")
+def test_get_current_visibility(mock_fetch_weather_data):
+    mock_fetch_weather_data.return_value = {"visibility": 10000}
+    data = WeatherModel.get_current_visibility("Boston")
+    assert data == {"visibility": 10000}
+    mock_fetch_weather_data.assert_called_once_with("Boston", "visibility")
+
+
+@patch("models.weather_model.fetch_weather_data")
+def test_get_current_clouds(mock_fetch_weather_data):
+    mock_fetch_weather_data.return_value = {"clouds": 75}
+    data = WeatherModel.get_current_clouds("Boston")
+    assert data == {"clouds": 75}
+    mock_fetch_weather_data.assert_called_once_with("Boston", "clouds")
