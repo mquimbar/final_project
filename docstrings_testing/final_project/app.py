@@ -259,11 +259,11 @@ def create_app(config_class=ProductionConfig):
             return make_response(jsonify({'error': str(e)}), 500)
 
     @app.route('/api/get-favorites/<string:user>', methods=['GET'])
-    def get_favorites(user):
+    def get_favorites():
         """Retrieve all favorite cities for a user."""
         try:
-            favorites = favorites_model.get_favorite_cities(user)
-            return make_response(jsonify({'user': user, 'favorites': favorites}), 200)
+            favorites = favorites_model.get_favorite_cities()
+            return make_response(jsonify({'favorites': favorites}), 200)
         except Exception as e:
             app.logger.error(f"Error retrieving favorites: {e}")
             return make_response(jsonify({'error': str(e)}), 500)
@@ -273,14 +273,14 @@ def create_app(config_class=ProductionConfig):
         """Delete a city from the user's favorites."""
         try:
             data = request.get_json()
-            user = data.get('user')
+            #user = data.get('user')
             city = data.get('city')
 
-            if not user or not city:
-                return make_response(jsonify({'error': 'Both user and city are required'}), 400)
+            if not city:
+                return make_response(jsonify({'error': 'City is required'}), 400)
 
-            favorites_model.delete_favorite_city(user, city)
-            return make_response(jsonify({'message': f'{city} removed from favorites for user {user}'}), 200)
+            favorites_model.delete_favorite_city(city)
+            return make_response(jsonify({'message': f'{city} removed from favorites'}), 200)
         except Exception as e:
             app.logger.error(f"Error deleting favorite: {e}")
             return make_response(jsonify({'error': str(e)}), 500)

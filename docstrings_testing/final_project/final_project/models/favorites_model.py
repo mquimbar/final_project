@@ -19,6 +19,7 @@ class FavoritesModel(db.Model):
 
     id: int = db.Column(db.Integer, primary_key=True)
     city: str = db.Column(db.String(80), unique=True, nullable=False)
+    deleted: bool = db.Column(db.Boolean, default=False)
     #user: str = db.Column(db.String(80), unique=True, nullable=False)
     #maybe need user????
 
@@ -90,24 +91,24 @@ class FavoritesModel(db.Model):
         return city_dict
 
     @classmethod
-    def delete_favorite_city(cls, city: str) -> None:
+    def delete_favorite_city(cls, city_id: int) -> None:
         """
         Soft delete a city by marking it as deleted.
 
         Args:
-            city (str): The name of the city to delete.
+            city_id (int): The id of the city to delete.
 
         Raises:
             ValueError: If the city with the given ID does not exist or is already deleted.
         """
-        city_check = cls.query.filter_by(city=city).first()
-        if not city_check:
-            logger.info("City %s not found", city)
-            raise ValueError(f"City {city} not found")
-        if city_check.deleted:
-            logger.info("City with name %s has already been deleted", city)
-            raise ValueError(f"City with name {city} has been deleted")
+        city = cls.query.filter_by(id=city_id).first()
+        if not city:
+            logger.info("City %s not found", city_id)
+            raise ValueError(f"City {city_id} not found")
+        if city.deleted:
+            logger.info("City with id %s has already been deleted", city_id)
+            raise ValueError(f"City with id {city_id} has been deleted")
 
-        city_check.deleted = True
+        city.deleted = True
         db.session.commit()
-        logger.info("City with name %s marked as deleted.", city)
+        logger.info("City with id %s marked as deleted.", city_id)

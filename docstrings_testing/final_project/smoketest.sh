@@ -122,6 +122,7 @@ add_favorite_city() {
 get_favorites() {
   echo "Retrieving favorite cities..."
   response=$(curl -s -X GET "$BASE_URL/get-favorites/testuser")
+  echo "$response"
   if echo "$response" | grep -q '"favorites"'; then
     echo "Favorite cities retrieved successfully."
     if [ "$ECHO_JSON" = true ]; then
@@ -138,8 +139,9 @@ get_favorites() {
 delete_favorite_city() {
   echo "Deleting a favorite city..."
   response=$(curl -s -X DELETE "$BASE_URL/delete-favorite" -H "Content-Type: application/json" \
-    -d '{"user":"testuser", "city":"New York"}')
-  if echo "$response" | grep -q '"message": "New York removed from favorites'; then
+    -d '{"city":"NewYork"}')
+  echo "$response"
+  if echo "$response" | grep -q '"message": "NewYork removed from favorites'; then
     echo "Favorite city deleted successfully."
   else
     echo "Failed to delete favorite city."
@@ -195,6 +197,7 @@ get_forecast() {
 check_health
 create_user
 login_user
+delete_favorite_city
 add_favorite_city
 get_favorites
 delete_favorite_city

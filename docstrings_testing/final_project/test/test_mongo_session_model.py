@@ -28,7 +28,7 @@ def test_login_user_creates_session_if_not_exists(mocker, sample_user_id):
 def test_login_user_loads_combatants_if_session_exists(mocker, sample_user_id, sample_combatants):
     """Test login_user loads combatants if session exists."""
     mock_find = mocker.patch(
-        "meal_max.clients.mongo_client.sessions_collection.find_one",
+        "final_project.clients.mongo_client.sessions_collection.find_one",
         return_value={"user_id": sample_user_id, "combatants": sample_combatants}
     )
     mock_battle_model = mocker.Mock()
@@ -41,7 +41,7 @@ def test_login_user_loads_combatants_if_session_exists(mocker, sample_user_id, s
 
 def test_logout_user_updates_combatants(mocker, sample_user_id, sample_combatants):
     """Test logout_user updates the combatants list in the session."""
-    mock_update = mocker.patch("meal_max.clients.mongo_client.sessions_collection.update_one", return_value=mocker.Mock(matched_count=1))
+    mock_update = mocker.patch("final_project.clients.mongo_client.sessions_collection.update_one", return_value=mocker.Mock(matched_count=1))
     mock_battle_model = mocker.Mock()
     mock_battle_model.get_combatants.return_value = sample_combatants
 
@@ -49,14 +49,14 @@ def test_logout_user_updates_combatants(mocker, sample_user_id, sample_combatant
 
     mock_update.assert_called_once_with(
         {"user_id": sample_user_id},
-        {"$set": {"combatants": sample_combatants}},
+        {"$set": {"city": sample_combatants}},
         upsert=False
     )
     mock_battle_model.clear_combatants.assert_called_once()
 
 def test_logout_user_raises_value_error_if_no_user(mocker, sample_user_id, sample_combatants):
     """Test logout_user raises ValueError if no session document exists."""
-    mock_update = mocker.patch("meal_max.clients.mongo_client.sessions_collection.update_one", return_value=mocker.Mock(matched_count=0))
+    mock_update = mocker.patch("final_project.clients.mongo_client.sessions_collection.update_one", return_value=mocker.Mock(matched_count=0))
     mock_battle_model = mocker.Mock()
     mock_battle_model.get_combatants.return_value = sample_combatants
 
@@ -65,6 +65,6 @@ def test_logout_user_raises_value_error_if_no_user(mocker, sample_user_id, sampl
 
     mock_update.assert_called_once_with(
         {"user_id": sample_user_id},
-        {"$set": {"combatants": sample_combatants}},
+        {"$set": {"city": sample_combatants}},
         upsert=False
     )
