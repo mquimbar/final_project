@@ -187,6 +187,29 @@ get_forecast() {
   fi
 }
 
+# Function to check current visibility for a city
+get_current_visibility() {
+  echo "Getting current visibility for New York..."
+  response=$(curl -s -X GET "$BASE_URL/visibility/New York")
+  if echo "$response" | grep -q '"visibility"'; then
+    echo "Visibility data retrieved successfully."
+  else
+    echo "Failed to retrieve visibility data."
+    exit 1
+  fi
+}
+
+# Function to check current clouds for a city
+get_current_clouds() {
+  echo "Getting current clouds for New York..."
+  response=$(curl -s -X GET "$BASE_URL/clouds/New York")
+  if echo "$response" | grep -q '"clouds"'; then
+    echo "Cloud data retrieved successfully."
+  else
+    echo "Failed to retrieve cloud data."
+    exit 1
+  fi
+}
 ##############################################
 #
 # Run All Tests
@@ -203,5 +226,8 @@ get_favorites
 delete_favorite_city
 get_weather
 get_forecast
+get_current_visibility
+get_current_clouds
+
 
 echo "All tests passed successfully!"
