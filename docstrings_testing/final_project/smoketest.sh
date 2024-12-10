@@ -44,9 +44,7 @@ check_health() {
 create_user() {
   echo "Creating a new user..."
   curl -s -X POST "$BASE_URL/create-user" -H "Content-Type: application/json" \
-    -d '{"username":"testuser", "password":"password123"}' | grep -q '"status": "user added"'
-  echo "$(curl -s -X POST "$BASE_URL/create-user" -H "Content-Type: application/json" \
-    -d '{"username":"testuser", "password":"password123"}')"
+    -d '{"username":"testuser1", "password":"password123"}' | grep -q '"status": "user added"'
   if [ $? -eq 0 ]; then
     echo "User created successfully."
   else
@@ -82,6 +80,7 @@ logout_user() {
   echo "Logging out user..."
   response=$(curl -s -X POST "$BASE_URL/logout" -H "Content-Type: application/json" \
     -d '{"username":"testuser"}')
+  echo "$response"
   if echo "$response" | grep -q '"message": "User testuser logged out successfully."'; then
     echo "User logged out successfully."
     if [ "$ECHO_JSON" = true ]; then
@@ -232,7 +231,6 @@ get_current_wind() {
 check_health
 create_user
 login_user
-delete_favorite_city
 add_favorite_city
 get_favorites
 delete_favorite_city
@@ -241,6 +239,8 @@ get_weather
 get_forecast
 get_current_visibility
 get_current_clouds
+get_current_wind
+logout_user
 
 
 echo "All tests passed successfully!"
