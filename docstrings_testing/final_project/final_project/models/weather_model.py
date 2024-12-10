@@ -20,7 +20,7 @@ def fetch_weather_data(city: str, endpoint: str) -> dict:
 
         Args:
             city (str): The city to fetch data for.
-            endpoint (str): The endpoint to use ('weather' or 'forecast').
+            endpoint (str): The endpoint to use (which data it is that we want to retrieve).
 
         Returns:
             dict: JSON response from the API.
@@ -117,7 +117,7 @@ class WeatherModel:
 
         Returns:
             dict: JSON response from the API.
-            
+
         """
         logger.info("Got current wind!")
         return fetch_weather_data(city, "wind")
