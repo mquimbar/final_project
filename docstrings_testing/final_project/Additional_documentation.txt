@@ -8,5 +8,6 @@ We used the Weather API from OpenWeatherMap for the current weather and got an A
     - REDIS_PORT=6379
     - MONGO_HOST=mongod
     - MONGO_PORT=27017
+    - OPENWEATHER_API_KEY=""
 
 3.The snapshot is in the smoketest_successful_run.png
