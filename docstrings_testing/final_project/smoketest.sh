@@ -236,6 +236,7 @@ delete_favorite_city
 add_favorite_city
 get_favorites
 delete_favorite_city
+add_favorite_city
 get_weather
 get_forecast
 get_current_visibility

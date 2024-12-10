@@ -3,7 +3,6 @@ import requests
 from unittest.mock import patch, MagicMock
 from final_project.models.weather_model import WeatherModel
 
-
 @patch("models.weather_model.requests.get")
 def test_fetch_weather_data_success(mock_get):
     mock_response = MagicMock()

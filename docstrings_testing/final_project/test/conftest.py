@@ -6,6 +6,9 @@ from app import create_app
 from config import TestConfig
 from final_project.db import db
 
+# def test_app_import():
+#     assert create_app is not None
+
 @pytest.fixture(scope="function")
 #@pytest.fixture
 def app():
