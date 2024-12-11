@@ -1,0 +1,13 @@
+1.We built docker using docker-compose. Then we simply ran ./smoketest.sh to run our smoketests from the 
+final_project/docstrings_testing/final_project directory.
+We used the Weather API from OpenWeatherMap for the current weather and got an API key from that. 
+2.The variables defined in our environment: 
+    - FLASK_APP=app.py
+    - DATABASE_URL=sqlite:////app/db/app.db
+    - REDIS_HOST=redis
+    - REDIS_PORT=6379
+    - MONGO_HOST=mongod
+    - MONGO_PORT=27017
+    - OPENWEATHER_API_KEY=""
+
+3.The snapshot is in the smoketest_successful_run.png
